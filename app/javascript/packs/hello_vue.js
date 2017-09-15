@@ -5,40 +5,86 @@
 // like app/views/layouts/application.html.erb.
 // All it does is render <div>Hello Vue</div> at the bottom of the page.
 
-import Vue from 'vue'
-import App from './app.vue'
+import Vue from 'vue/dist/vue.esm'
+import TurbolinksAdapter from 'vue-turbolinks'
+import VueResource from 'vue-resource'
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.body.appendChild(document.createElement('hello'))
-  const app = new Vue(App).$mount('hello')
+Vue.use(VueResource)
 
-  console.log(app)
+document.addEventListener('turbolinks:load', () => {
+  Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+
+  var app = new Vue({
+    el: "#newsletters",
+    data: {
+      newsletters: [],
+      newsletter: {
+        subject: '',
+        content: ''
+      },
+      editingCache: {
+        subject: '',
+        content: ''
+      },
+      editingKey: -1,
+      errors: {}
+    },
+    created: function() {
+      var that = this;
+      this.$http.get('/newsletters.json').then(
+        response => {
+          that.newsletters = response.body
+        }, response => {
+          that.errors = response.data.errors
+        })
+    },
+    methods: {
+      // Create a new Newsletter
+      saveNewsletter: function() {
+        var that = this
+        this.$http.post('/newsletters', {
+          newsletter: this.newsletter
+        }).then(response => {
+          that.errors = {}
+          that.newsletter = {}
+          that.newsletters.push(response.data)
+          that.editingKey = -1
+        }, response => {
+          that.errors = JSON.parse(response.bodyText)
+        })
+      },
+      // Edit an existing Newsletter
+      editNewsletter: function(key) {
+        this.editingKey = key
+        this.editingCache = Object.assign({}, this.newsletters[key]);
+      },
+      // update Edited Newsletter
+      updateNewsletter: function(key) {
+        var that = this
+        this.$http.put(`/newsletters/${this.editingCache.id}`, {
+          newsletter: this.editingCache
+        }).then(response => {
+          that.errors = {}
+          that.newsletters[key] = this.editingCache
+          that.editingKey = -1
+        }, response => {
+          that.errors = JSON.parse(response.bodyText)
+        })
+      },
+      // destroy Newletter
+      destroyNewsletter: function(newsletter) {
+        var that = this
+        this.$http.delete(`/newsletters/${newsletter.id}`, {
+          body: newsletter
+        }).then(response => {
+          that.errors = {}
+          this.newsletters.splice(this.newsletters.indexOf(newsletter), 1);
+        }, response => {
+          that.errors = JSON.parse(response.bodyText)
+        })
+      }
+    }
+
+  })
+
 })
-
-
-// The above code uses Vue without the compiler, which means you cannot
-// use Vue to target elements in your existing html templates. You would
-// need to always use single file components.
-// To be able to target elements in your existing html/erb templates,
-// comment out the above code and uncomment the below
-// Add <%= javascript_pack_tag 'hello_vue' %> to your layout
-// Then add this markup to your html template:
-//
-// <div id='hello'>
-//   {{message}}
-//   <app></app>
-// </div>
-
-
-// import Vue from 'vue/dist/vue.esm'
-// import App from './app.vue'
-//
-// document.addEventListener('DOMContentLoaded', () => {
-//   const app = new Vue({
-//     el: '#hello',
-//     data: {
-//       message: "Can you say hello?"
-//     },
-//     components: { App }
-//   })
-// })

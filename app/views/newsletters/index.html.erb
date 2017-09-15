@@ -1,0 +1,39 @@
+<h1>Newsletters</h1>
+
+<div id="newsletters">
+  <div class="row" v-for="(newsletter, key) in newsletters">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h4 class="panel-title" v-show="key !== editingKey">{{ newsletter.subject }}</h4>
+        <input type="text" v-show="editingKey === key" v-model="editingCache.subject" style="color:black" required>
+         <span style="color:red" v-show="editingKey === key">{{ errors.subject }}</span>
+      </div>
+      <div class="panel-body">
+        <span v-show="key !== editingKey">{{ newsletter.content }}</span>
+        <textarea rows="4" cols="50" v-show="editingKey === key" v-model="editingCache.content" required>
+    </textarea>
+             <span style="color:red" v-show="editingKey === key">{{ errors.content }}</span>
+
+      </div>
+      <div class="panel-footer">
+        <template v-if="key !== editingKey">
+          <button v-on:click="editNewsletter(key)" v-show="key !== editingKey">Edit</button>
+          <button v-on:click="destroyNewsletter(newsletter)" v-show="key !== editingKey">Destroy</button>
+        </template>
+        <template v-else>
+          <button v-on:click="updateNewsletter(key)">Update</button>
+          <button v-on:click="editingKey = -1">Cancel</button>
+        </template>
+      </div>
+    </div>
+  </div>
+  <br>
+  <div id="newsletter-form">
+    <label>Newslatter Title</label>
+    <input type="text" v-model="newsletter.subject">
+    <br>
+    <label>Newslatter Content</label>
+    <input type="text" v-model="newsletter.content">
+    <button @click="saveNewsletter">Save Newsletter</button>
+  </div>
+</div>
