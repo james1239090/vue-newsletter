@@ -1,0 +1,12 @@
+SENDGRID_API_KEY:
+SENDGRID_API_USER:
+SENDGRID_API_KEY:
+Mailgun_API_KEY:
+Mailgun_Domain:
+
+production:
+  SENDGRID_API_KEY:
+  SENDGRID_API_USER:
+  SENDGRID_API_KEY:
+  Mailgun_API_KEY:
+  Mailgun_Domain:
