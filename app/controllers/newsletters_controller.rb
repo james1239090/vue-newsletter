@@ -36,7 +36,14 @@ class NewslettersController < ApplicationController
   end
 
   def destroy
-
+    @newsletter = Newsletter.find(params[:id])
+    respond_to do |format|
+      if @newsletter.destroy
+        format.json { render json: @newsletter }
+      else
+        format.json { render json: @newsletter.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   private
