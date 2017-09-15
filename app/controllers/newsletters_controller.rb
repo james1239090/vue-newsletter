@@ -46,6 +46,14 @@ class NewslettersController < ApplicationController
     end
   end
 
+  def sendWithMailgun
+
+  end
+
+  def sendWithSendgrid
+
+  end
+
   private
   def newsletter_params
     params.require(:newsletter).permit(:subject, :content)

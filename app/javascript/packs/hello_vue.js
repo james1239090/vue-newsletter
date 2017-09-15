@@ -75,14 +75,36 @@ document.addEventListener('turbolinks:load', () => {
       destroyNewsletter: function(newsletter) {
         var that = this
         this.$http.delete(`/newsletters/${newsletter.id}`, {
-          body: newsletter
+          newsletter: newsletter
         }).then(response => {
           that.errors = {}
           this.newsletters.splice(this.newsletters.indexOf(newsletter), 1);
         }, response => {
           that.errors = JSON.parse(response.bodyText)
         })
+      },
+      // Send Email with Mailgun
+      sendWithMailgun: function(newsletter) {
+        var that = this
+        this.$http.post(`/newsletters/${newsletter.id}/sendWithMailgun`, {
+          newsletter: newsletter
+        }).then(response => {
+          that.errors = {}
+        }, response => {
+          that.errors = JSON.parse(response.bodyText)
+        })
+      },
+      sendWithSendgrid: function(newsletter) {
+        var that = this
+        this.$http.post(`/newsletters/${newsletter.id}/sendWithSendgrid`, {
+          newsletter: newsletter
+        }).then(response => {
+          that.errors = {}
+        }, response => {
+          that.errors = JSON.parse(response.bodyText)
+        })
       }
+
     }
 
   })
