@@ -3,8 +3,14 @@ SENDGRID_API_USER:
 SENDGRID_API_KEY:
 Mailgun_API_KEY:
 Mailgun_Domain:
+mail_to_user: ['','']
+mail_cc_user: ['','']
+mail_bcc_user: ['','']
 
 production:
+  mail_to_user: ['','']
+  mail_cc_user: ['','']
+  mail_bcc_user: ['','']
   SENDGRID_API_KEY:
   SENDGRID_API_USER:
   SENDGRID_API_KEY:
