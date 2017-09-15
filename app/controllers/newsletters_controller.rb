@@ -24,7 +24,15 @@ class NewslettersController < ApplicationController
 
 
   def update
-
+    @newsletter = Newsletter.find(params[:id])
+    respond_to do |format|
+      if @newsletter.update(newsletter_params)
+        format.json { render json: @newsletter }
+      else
+        format.html { render :edit }
+        format.json { render json: @newsletter.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   def destroy
