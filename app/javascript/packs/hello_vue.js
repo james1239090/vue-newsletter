@@ -13,15 +13,15 @@ Vue.use(VueResource)
 
 document.addEventListener('turbolinks:load', () => {
 	Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-
+	var newsletterObject = {
+		subject: '',
+		content: '',
+	}
 	var app = new Vue({
 		el: "#newsletters",
 		data: {
 			newsletters: [],
-			newsletter: {
-				subject: '',
-				content: ''
-			},
+			newsletter: Object.assign({}, newsletterObject),
 			editingCache: {
 				subject: '',
 				content: ''
@@ -50,13 +50,18 @@ document.addEventListener('turbolinks:load', () => {
 					newsletter: this.newsletter
 				}).then(response => {
 					that.errors = {}
-					that.newsletter = {}
+					that.newsletter = Object.assign({}, newsletterObject)
 					that.newsletters.push(response.data)
 					that.editingKey = -1
 					that.addNewsletter = false
 				}, response => {
 					that.errors = JSON.parse(response.bodyText)
 				})
+			},
+			cancelCreateNewsletter: function() {
+				this.newsletter = Object.assign({}, newsletterObject)
+				this.addNewsletter = false
+				this.errors = {}
 			},
 			// Edit an existing Newsletter
 			editNewsletter: function(key) {
