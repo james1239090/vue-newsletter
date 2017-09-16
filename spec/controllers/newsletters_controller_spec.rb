@@ -96,5 +96,20 @@ RSpec.describe NewslettersController, type: :controller do
     end
 
   end
+  describe "DELETE destroy" do
+    it "assigns @newsletter" do
+      newsletter = create(:newsletter)
 
+      delete :destroy, params: { id: newsletter.id }, format: :json
+
+      expect(assigns[:newsletter]).to eq(newsletter)
+    end
+
+    it "deletes a record" do
+      newsletter = create(:newsletter)
+
+      expect { delete :destroy, params: { id: newsletter.id }, format: :json }.to change { Newsletter.count }.by(-1)
+    end
+
+  end
 end
