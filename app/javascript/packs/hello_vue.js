@@ -84,14 +84,18 @@ document.addEventListener('turbolinks:load', () => {
 			// destroy Newletter
 			destroyNewsletter: function(newsletter) {
 				var that = this
-				this.$http.delete(`/newsletters/${newsletter.id}`, {
-					newsletter: newsletter
-				}).then(response => {
-					that.errors = {}
-					this.newsletters.splice(this.newsletters.indexOf(newsletter), 1);
-				}, response => {
-					that.errors = JSON.parse(response.bodyText)
-				})
+				var destroy = confirm("Are you Sure?")
+				if (destroy) {
+					this.$http.delete(`/newsletters/${newsletter.id}`, {
+						newsletter: newsletter
+					}).then(response => {
+						that.errors = {}
+						this.newsletters.splice(this.newsletters.indexOf(newsletter), 1);
+					}, response => {
+						that.errors = JSON.parse(response.bodyText)
+					})
+				}
+
 			},
 			// Send Email with Mailgun
 			sendWithMailgun: function(newsletter) {
