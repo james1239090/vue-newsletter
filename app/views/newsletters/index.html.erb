@@ -1,17 +1,43 @@
 <h1>Newsletters</h1>
 <div id="newsletters">
-  <div class="row" v-for="(newsletter, key) in newsletters">
+  <div class="row">
+    <button class="btn btn-primary pull-right" v-on:click="addNewsletter = true">Add New Newsletter</button>
+  </div>
+  <br>
+  <div class="row" v-show="addNewsletter">
+    <h3 id="addNewsletter">New Newsletter</h3>
     <div class="panel panel-primary">
       <div class="panel-heading">
-        <h4 class="panel-title" v-show="key !== editingKey">{{ newsletter.subject }}</h4>
-        <input type="text" v-show="editingKey === key" v-model="editingCache.subject" style="color:black" required>
-        <span style="color:red" v-show="editingKey === key">{{ errors.subject }}</span>
+        <label for="newsletter-subject">Newslatter Subject</label><br>
+        <input id="newsletter-subject" type="text" v-model="newsletter.subject" style="color:black">
       </div>
       <div class="panel-body">
+        <label for="newsletter-content">Newslatter Content</label><br>
+        <textarea id="newsletter-content" v-model="newsletter.content" rows="4" cols="50"></textarea>
+      </div>
+      <div class="panel-footer">
+        <button v-on:click="saveNewsletter" class="btn btn-default">Save</button>
+        <button v-on:click="addNewsletter = flase" class="btn btn-default">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div class="row" v-for="(newsletter, key) in newsletters">
+    <hr>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title" v-show="key !== editingKey">Subject : <strong>{{ newsletter.subject }}<strong></h4>
+        <template v-if="key === editingKey">
+          <input type="text" v-model="editingCache.subject" style="color:black" required>
+          <span style="color:red">{{ errors.subject }}</span>
+        </template>
+      </div>
+      <div class="panel-body">
+        <label>Content : </label><br>
         <span v-show="key !== editingKey">{{ newsletter.content }}</span>
-        <textarea rows="4" cols="50" v-show="editingKey === key" v-model="editingCache.content" required>
-    </textarea>
-        <span style="color:red" v-show="editingKey === key">{{ errors.content }}</span>
+        <template v-if="key === editingKey">
+          <textarea rows="4" cols="50"  v-model="editingCache.content" required></textarea>
+          <span style="color:red">{{ errors.content }}</span>
+        </template>
       </div>
       <div class="panel-footer">
         <template v-if="key !== editingKey">
@@ -28,13 +54,3 @@
       </div>
     </div>
   </div>
-  <br>
-  <div id="newsletter-form">
-    <label>Newslatter Title</label>
-    <input type="text" v-model="newsletter.subject">
-    <br>
-    <label>Newslatter Content</label>
-    <input type="text" v-model="newsletter.content">
-    <button @click="saveNewsletter">Save Newsletter</button>
-  </div>
-</div>

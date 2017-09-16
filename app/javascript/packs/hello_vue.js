@@ -27,7 +27,8 @@ document.addEventListener('turbolinks:load', () => {
 				content: ''
 			},
 			editingKey: -1,
-			errors: {}
+			errors: {},
+			addNewsletter: false
 		},
 		created: function() {
 			var that = this;
@@ -52,6 +53,7 @@ document.addEventListener('turbolinks:load', () => {
 					that.newsletter = {}
 					that.newsletters.push(response.data)
 					that.editingKey = -1
+					that.addNewsletter = false
 				}, response => {
 					that.errors = JSON.parse(response.bodyText)
 				})
