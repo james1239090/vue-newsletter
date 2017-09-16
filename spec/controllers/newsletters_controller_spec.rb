@@ -19,4 +19,15 @@ RSpec.describe NewslettersController, type: :controller do
       expect(response).to render_template("index")
     end
   end
+
+  describe "POST create" do
+    it "create a new newsletter " do
+    newsletter = build(:newsletter)
+
+    expect do
+      post :create, params: { :newsletter => attributes_for(:newsletter) }, format: :json
+    end.to change{ Newsletter.count }.by(1)
+  end
+
+  end
 end
