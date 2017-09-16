@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe NewslettersController, type: :controller do
   describe "GET index" do
     it "assigns @newsletters and render template" do
-      newsletter1 = Newsletter.create(subject: "foo", content: "bar")
-      newsletter2 = Newsletter.create(subject: "bar", content: "foo")
+      newsletter1 = create(:newsletter)
+      newsletter2 = create(:newsletter)
 
       get :index
 
