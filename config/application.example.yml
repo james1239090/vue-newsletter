@@ -3,14 +3,14 @@ SENDGRID_API_USER:
 SENDGRID_API_KEY:
 Mailgun_API_KEY:
 Mailgun_Domain:
-mail_to_user: ['','']
-mail_cc_user: ['','']
-mail_bcc_user: ['','']
+mail_to_user: "test@gmail.com,test@yahoo.com,test@test.com"
+mail_cc_user: "test@gmail.com,test@yahoo.com,test@test.com"
+mail_bcc_user: "test@gmail.com,test@yahoo.com,test@test.com"
 
 production:
-  mail_to_user: ['','']
-  mail_cc_user: ['','']
-  mail_bcc_user: ['','']
+  mail_to_user: "test@gmail.com,test@yahoo.com,test@test.com"
+  mail_cc_user: "test@gmail.com,test@yahoo.com,test@test.com"
+  mail_bcc_user: "test@gmail.com,test@yahoo.com,test@test.com"
   SENDGRID_API_KEY:
   SENDGRID_API_USER:
   SENDGRID_API_KEY:

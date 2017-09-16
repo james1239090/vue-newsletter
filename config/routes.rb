@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   resources :newsletters do
     member do
        post :sendWithMailgun
-       post :sendWithSendgird
+       post :sendWithSendgrid
     end
   end
 
