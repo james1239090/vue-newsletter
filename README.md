@@ -61,7 +61,7 @@ $ heroku run rails:db:migrate
 * Push secret information by `Figaro`
 
 ```
-$ figaro heroku:set -e productio
+$ figaro heroku:set -e production
 ```
 
 * Done

@@ -7,10 +7,11 @@ class SendEmailService
   def send_with_mailgun
     data = {}
     data[:from] = "SiteMinder <no-reply@mailgun.siteminder.com>"
+
     data[:to] = ENV['mail_to_user']
     data[:cc] = ENV['mail_cc_user'].split(",")
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
-    data[:text] = @newsletter.content
+    data[:subject] = @newsletter.subject
     # data["o:testmode"] = true
     errors = {}
     begin
