@@ -11,7 +11,7 @@ class SendEmailService
     data[:cc] = ENV['mail_cc_user'].split(",")
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:text] = @newsletter.content
-    data["o:testmode"] = true
+    # data["o:testmode"] = true
     errors = {}
     begin
       res = RestClient.post "https://api:#{ENV['Mailgun_API_KEY']}"\
