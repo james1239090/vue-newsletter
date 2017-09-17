@@ -35,7 +35,7 @@
           </div>
           <div class="panel-body">
             <label>Content : </label><br>
-            <span v-show="key !== editingKey">{{ newsletter.content }}</span>
+            <pre v-show="key !== editingKey">{{ newsletter.content }}</pre>
             <template v-if="key === editingKey">
               <textarea rows="4" cols="50"  v-model="editingCache.content" required></textarea>
               <span style="color:red">{{ errors.content }}</span>

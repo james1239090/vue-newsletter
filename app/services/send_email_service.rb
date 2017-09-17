@@ -7,9 +7,9 @@ class SendEmailService
   def send_with_mailgun
     data = {}
     data[:from] = "SiteMinder <no-reply@mailgun.siteminder.com>"
-    data[:to] = "james1239090@gmail.com"
+    data[:to] = ENV['mail_to_user']
     data[:cc] = ENV['mail_cc_user'].split(",")
-    data[:subject] = @newsletter.subject
+    data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:text] = @newsletter.content
     data["o:testmode"] = true
     errors = {}
@@ -41,7 +41,7 @@ class SendEmailService
     data[:to] = ENV['mail_to_user']
     data[:cc] = ENV['mail_cc_user']
     data[:subject] = @newsletter.subject
-    data[:text] = @newsletter.content
+    data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:from] = "SiteMinder <no-reply@sendgrid.siteminder.com>"
     data[:api_user] = ENV['SENDGRID_API_USER']
     data[:api_key] = ENV['SENDGRID_API_KEY']
