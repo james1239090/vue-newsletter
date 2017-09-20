@@ -8,11 +8,12 @@ class SendEmailService
     data = {}
     data[:from] = "SiteMinder <no-reply@mailgun.siteminder.com>"
 
-    data[:to] = ENV['mail_to_user']
+    data[:to] = ENV['mail_to_user'].split(",")
     data[:cc] = ENV['mail_cc_user'].split(",")
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:subject] = @newsletter.subject
-    # data["o:testmode"] = true
+    data["o:testmode"] = true
+
     errors = {}
     begin
       res = RestClient.post "https://api:#{ENV['Mailgun_API_KEY']}"\
@@ -31,6 +32,8 @@ class SendEmailService
       else
         errors[:code] = e.response.code
         errors[:message] = "Sending Errors, please check the response code"
+        puts "--------------"
+        puts e.response
         OpenStruct.new(errors)
       end
     end
@@ -39,8 +42,8 @@ class SendEmailService
 
   def send_with_sendgrid
     data = {}
-    data[:to] = ENV['mail_to_user']
-    data[:cc] = ENV['mail_cc_user']
+    data[:to] = ENV['mail_to_user'].split(",")
+    data[:cc] = ENV['mail_cc_user'].split(",")
     data[:subject] = @newsletter.subject
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:from] = "SiteMinder <no-reply@sendgrid.siteminder.com>"

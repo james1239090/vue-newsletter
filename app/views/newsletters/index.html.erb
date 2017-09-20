@@ -6,20 +6,39 @@
   <br>
   <div class="row" v-show="addNewsletter">
     <h3 id="addNewsletter">New Newsletter</h3>
-    <div class="panel panel-primary">
+    <div class="panel panel-info">
       <div class="panel-heading">
-        <label for="newsletter-subject">Newslatter Subject</label><br>
-        <input id="newsletter-subject" type="text" v-model="newsletter.subject" style="color:black">
-        <span style="color:red" v-show="editingKey === -1">{{ errors.subject }}</span>
-      </div>
+        <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">TO</span>
+          <input-tag placeholder="Enter Email" :tags="newsletter.mail_to_list" validate="email"></input-tag>
+        </div>
+        <span style="color:red" v-show="editingKey === -1 && errors.mail_to_list.length > 0">{{ errors.mail_to_list }}</span>
+        <br>
+        <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">CC</span>
+          <input-tag placeholder="Enter Email" :tags="newsletter.mail_cc_list" validate="email"></input-tag>
+        </div>
+        <span style="color:red" v-show="editingKey === -1 && errors.mail_cc_list.length > 0">{{ errors.mail_cc_list }}</span>
+        <br>
+        <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">BCC</span>
+          <input-tag placeholder="Enter Email" :tags="newsletter.mail_bcc_list" validate="email"></input-tag>
+        </div>
+        <span style="color:red" v-show="editingKey === -1 && errors.mail_bcc_list.length > 0">{{ errors.mail_bcc_list }}</span>           </div>
       <div class="panel-body">
+        <div class="form-group">
+          <label class="form__label">Newslatter Subject</label>
+          <input class="form__input" v-model="newsletter.subject" @input="checkblank(newsletter.subject,'subject')">
+          <span style="color:red" v-show="editingKey === -1">{{ errors.subject }}</span>
+        </div>
+        <br>
         <label for="newsletter-content">Newslatter Content</label><br>
-        <textarea id="newsletter-content" v-model="newsletter.content" rows="4" cols="50"></textarea>
+        <textarea id="newsletter-content" v-model="newsletter.content" rows="4" cols="50" @input="checkblank(newsletter.content,'content')"></textarea>
         <span style="color:red" v-show="editingKey === -1">{{ errors.content }}</span>
       </div>
       <div class="panel-footer">
         <button v-on:click="saveNewsletter" class="btn btn-default">Save</button>
-        <button v-on:click="cancelCreateNewsletter" class="btn btn-default">Cancel</button>
+        <button v-on:click="cancelNewsletter" class="btn btn-default">Cancel</button>
       </div>
     </div>
   </div>
@@ -27,32 +46,44 @@
     <hr>
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h4 class="panel-title" v-show="key !== editingKey">Subject : <strong>{{ newsletter.subject }}<strong></h4>
-            <template v-if="key === editingKey">
-              <input type="text" v-model="editingCache.subject" style="color:black" required>
-              <span style="color:red">{{ errors.subject }}</span>
-            </template>
-          </div>
-          <div class="panel-body">
-            <label>Content : </label><br>
-            <pre v-show="key !== editingKey">{{ newsletter.content }}</pre>
-            <template v-if="key === editingKey">
-              <textarea rows="4" cols="50"  v-model="editingCache.content" required></textarea>
-              <span style="color:red">{{ errors.content }}</span>
-            </template>
-          </div>
-          <div class="panel-footer">
-            <template v-if="key !== editingKey">
-              <button v-on:click="editNewsletter(key)" v-show="key !== editingKey" class="btn btn-success">Edit</button>
-              <button v-on:click="destroyNewsletter(newsletter)" v-show="key !== editingKey" class="btn btn-danger">Destroy</button>
-              <button v-on:click="sendWithMailgun(newsletter)" class="btn btn-info">Send with Mailgun</button>
-              <button v-on:click="sendWithSendgrid(newsletter)"  class="btn btn-info">Send with Sendgrid</button>
-              <span style="color:red">{{ newsletter.message }}</span>
-            </template>
-            <template v-else>
-              <button v-on:click="updateNewsletter(key)" class="btn btn-success">Update</button>
-              <button v-on:click="editingKey = -1" class="btn btn-default">Cancel</button>
-            </template>
-          </div>
-        </div>
+        <label>to:</label>
+        <input-tag placeholder="Enter Email" :tags="newsletter.mail_to_list" validate="email" :read-only="key !== editingKey"></input-tag>
+        <template v-if="newsletter.mail_cc_list.length > 0 || key === editingKey">
+          <label>cc:</label>
+          <input-tag placeholder="Enter Email" :tags="newsletter.mail_cc_list" validate="email" :read-only="key !== editingKey"></input-tag>
+        </template>
+        <template v-if="newsletter.mail_bcc_list.length > 0 || key === editingKey">
+          <label>bcc:</label>
+          <input-tag placeholder="Enter Email" :tags="newsletter.mail_bcc_list" validate="email" :read-only="key !== editingKey"></input-tag>
+        </template>
       </div>
+      <div class="panel-body">
+        <label v-show="key !== editingKey">Subject : <strong>{{ newsletter.subject }}</strong></label>
+        <template v-if="key === editingKey">
+          <input type="text" v-model="editingCache.subject" style="color:black" @input="checkblank(editingCache.subject,'subject')">
+          <span style="color:red">{{ errors.subject }}</span>
+        </template>
+        <br>
+        <label>Content : </label><br>
+        <pre v-show="key !== editingKey">{{ newsletter.content }}</pre>
+        <template v-if="key === editingKey">
+          <textarea rows="4" cols="50"  v-model="editingCache.content" @input="checkblank(editingCache.content,'content')"></textarea>
+          <span style="color:red">{{ errors.content }}</span>
+        </template>
+      </div>
+      <div class="panel-footer">
+        <template v-if="key !== editingKey">
+          <button v-on:click="editNewsletter(key)" v-show="key !== editingKey" class="btn btn-success">Edit</button>
+          <button v-on:click="destroyNewsletter(newsletter)" v-show="key !== editingKey" class="btn btn-danger">Destroy</button>
+          <button v-on:click="sendWithMailgun(newsletter)" class="btn btn-info">Send with Mailgun</button>
+          <button v-on:click="sendWithSendgrid(newsletter)"  class="btn btn-info">Send with Sendgrid</button>
+          <span style="color:red">{{ newsletter.message }}</span>
+        </template>
+        <template v-else>
+          <button v-on:click="updateNewsletter(key)" class="btn btn-success">Update</button>
+          <button v-on:click="cancelNewsletter" class="btn btn-default">Cancel</button>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>

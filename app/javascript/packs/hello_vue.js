@@ -8,30 +8,35 @@
 import Vue from 'vue/dist/vue.esm'
 import TurbolinksAdapter from 'vue-turbolinks'
 import VueResource from 'vue-resource'
+import InputTag from 'vue-input-tag'
 
 Vue.use(VueResource)
 
 document.addEventListener('turbolinks:load', () => {
 	Vue.http.headers.common['X-CSRF-Token'] = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-	var newsletterObject = {
-		subject: '',
-		content: '',
+	var newsletterObject = function() {
+		this.subject = ''
+		this.content = ''
+		this.mail_to_list = []
+		this.mail_cc_list = []
+		this.mail_bcc_list = []
 	}
 	var app = new Vue({
 		el: "#newsletters",
 		data: {
+			test: [],
 			newsletters: [],
-			newsletter: Object.assign({}, newsletterObject),
-			editingCache: {
-				subject: '',
-				content: ''
-			},
+			newsletter: new newsletterObject(),
+			editingCache: new newsletterObject(),
 			editingKey: -1,
-			errors: {},
+			errors: new newsletterObject(),
 			addNewsletter: false
 		},
+		components: {
+			InputTag
+		},
 		created: function() {
-			var that = this;
+			var that = this
 			this.$http.get('/newsletters.json').then(
 				response => {
 					that.newsletters = response.body.map(function(v) {
@@ -46,22 +51,28 @@ document.addEventListener('turbolinks:load', () => {
 			// Create a new Newsletter
 			saveNewsletter: function() {
 				var that = this
-				this.$http.post('/newsletters', {
-					newsletter: this.newsletter
-				}).then(response => {
-					that.errors = {}
-					that.newsletter = Object.assign({}, newsletterObject)
-					that.newsletters.push(response.data)
-					that.editingKey = -1
-					that.addNewsletter = false
-				}, response => {
-					that.errors = JSON.parse(response.bodyText)
-				})
+				var valid = false;
+				valid = this.checkAllValid()
+				if (valid) {
+					this.$http.post('/newsletters', {
+						newsletter: this.newsletter
+					}).then(response => {
+						that.errors = new newsletterObject()
+						that.newsletter = new newsletterObject()
+						that.newsletters.push(response.data)
+						that.editingKey = -1
+						that.addNewsletter = false
+					}, response => {
+						that.errors = JSON.parse(response.bodyText)
+					})
+				}
+
 			},
-			cancelCreateNewsletter: function() {
-				this.newsletter = Object.assign({}, newsletterObject)
+			cancelNewsletter: function() {
+				this.editingKey = -1
+				this.newsletter = new newsletterObject()
 				this.addNewsletter = false
-				this.errors = {}
+				this.errors = new newsletterObject()
 			},
 			// Edit an existing Newsletter
 			editNewsletter: function(key) {
@@ -74,7 +85,7 @@ document.addEventListener('turbolinks:load', () => {
 				this.$http.put(`/newsletters/${this.editingCache.id}`, {
 					newsletter: this.editingCache
 				}).then(response => {
-					that.errors = {}
+					that.errors = new newsletterObject()
 					that.newsletters[key] = this.editingCache
 					that.editingKey = -1
 				}, response => {
@@ -89,7 +100,7 @@ document.addEventListener('turbolinks:load', () => {
 					this.$http.delete(`/newsletters/${newsletter.id}`, {
 						newsletter: newsletter
 					}).then(response => {
-						that.errors = {}
+						that.errors = new newsletterObject()
 						this.newsletters.splice(this.newsletters.indexOf(newsletter), 1);
 					}, response => {
 						that.errors = JSON.parse(response.bodyText)
@@ -106,6 +117,7 @@ document.addEventListener('turbolinks:load', () => {
 					that.checkEmailResponse(response, "Mailgun", newsletter)
 				}, response => {
 					that.errors = JSON.parse(response.bodyText)
+					console.log(that.errors)
 				})
 			},
 			sendWithSendgrid: function(newsletter) {
@@ -123,8 +135,48 @@ document.addEventListener('turbolinks:load', () => {
 				if (mailResponseCode === 200) {
 					newsletter.message = "Success Send Email with " + service
 				} else {
-					newsletter.message = response.body.table.message
+					newsletter.message = response.body.table.message + " response : " + response.body.table.code
 				}
+			},
+			validEmail: function(maillist, from) {
+				var validRegExp = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/
+				var emails = maillist
+				var valid = true;
+				for (var n = 0; n < emails.length; n++) {
+					var mail = emails[n].trim()
+					if (mail.search(validRegExp) === -1 && mail !== '') {
+						valid = false;
+						this.errors[from] = 'Invalid Email Address'
+					}
+				}
+				if (valid) {
+					this.errors[from] = ''
+				}
+
+				return valid
+			},
+			checkblank: function(inputText, from) {
+				console.log(inputText)
+				console.log(from)
+
+				if ((inputText === '') || (inputText === null) || (inputText.length === 0)) {
+					this.errors[from] = (typeof(inputText) === "object") ? "can not be blank, press enter key to finish" : "can not be blank"
+					return false
+				} else {
+					this.errors[from] = ""
+					return true
+				}
+			},
+			checkAllValid: function() {
+				var valid = false
+				this.checkblank(this.newsletter.mail_to_list, 'mail_to_list')
+				this.checkblank(this.newsletter.subject, 'subject')
+				this.checkblank(this.newsletter.content, 'content')
+				valid = (this.checkblank(this.newsletter.mail_to_list, 'mail_to_list') &&
+					this.checkblank(this.newsletter.subject, 'subject') &&
+					this.checkblank(this.newsletter.content, 'content'))
+
+				return valid
 			}
 
 		}

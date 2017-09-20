@@ -49,14 +49,10 @@ class NewslettersController < ApplicationController
   def sendWithMailgun
     @newsletter = Newsletter.find(params[:id])
     res= SendEmailService.new(@newsletter).send_with_mailgun
-    puts "------resresrsersr----"
-    puts res
     respond_to do |format|
       if res.code == 200
         format.json { render json: @newsletter }
       else
-        puts "sssssssssssss"
-        puts res
         format.json { render json: res }
       end
     end
@@ -69,6 +65,6 @@ class NewslettersController < ApplicationController
 
   private
   def newsletter_params
-    params.require(:newsletter).permit(:subject, :content)
+    params.require(:newsletter).permit(:subject, :content, :mail_to_list => [], :mail_cc_list => [], :mail_bcc_list => [])
   end
 end
