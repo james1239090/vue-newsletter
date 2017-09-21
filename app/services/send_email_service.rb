@@ -13,8 +13,8 @@ class SendEmailService
     data[:bcc] ||= @newsletter.mail_bcc_list if @newsletter.mail_bcc_list.length > 0
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:subject] = @newsletter.subject
-    # data["o:testmode"] = true
-    puts "------------"
+    data["o:testmode"] = true
+    puts "------data------"
     puts data
     errors = {}
     begin
@@ -27,17 +27,16 @@ class SendEmailService
           @sendState = true
           send_with_sendgrid
         else
-          errors[:code] = e.response.code
-          errors[:message] = "Mailgun and Sendgrid both of Service are failed"
-          OpenStruct.new(errors)
+          e.message = "[Mailgun] Server Errors - something is wrong on Mailgun’s end, Mailgun and Sendgrid both of Service are failed"
         end
-      else
-        errors[:code] = e.response.code
-        errors[:message] = "Sending Errors, please check the response code"
-        puts "--------------"
-        puts e.response
-        OpenStruct.new(errors)
+      when 400
+        e.message  = "[Mailgun] Bad Request - Often missing a required parameter"
+      when 401
+        e.message  = "[Mailgun] Unauthorized - No valid API key provided"
+      when 402
+        e.message = "[Mailgun] Request Failed - Parameters were valid but request failed"
       end
+      e
     end
   end
 
@@ -55,20 +54,38 @@ class SendEmailService
     errors = {}
     begin
       res = RestClient.post "https://api.sendgrid.com/api/mail.send.json", data
+
+      if res.response.code == 200
+        res.message = "[Sendgrid] Your message is valid, but it is not queued to be delivered. "
+      elsif res.response.code == 202
+        res.message = "[Sendgrid] Your message is both valid, and queued to be delivered."
+      end
+
     rescue Exception => e
       case e.response.code
-      when 500..599
+      when 500,503
         if @sendState == false
           @sendState = true
           send_with_mailgun
         else
-          errors[:code] = e.response.code
-          errors[:message] = "Mailgun and Sendgrid both of Service are failed"
-          OpenStruct.new(errors)
+          e.message = "[Sendgrid] The SendGrid v3 Web API is not available, Mailgun and Sendgrid both of Service are failed"
         end
-      else
-        e
+      when 401
+        e.message = "[Sendgrid] You do not have authorization to make the request."
+      when 403
+        e.message = "[Sendgrid] FORBIDDEN"
+      when 404
+        e.message = "[Sendgrid] The resource you tried to locate could not be found or does not exist."
+      when 405
+        e.message = "[Sendgrid] METHOD NOT ALLOWED"
+      when 413
+        e.message = "[Sendgrid] The JSON payload you have included in your request is too large."
+      when 415
+        e.message = "[Sendgrid] UNSUPPORTED MEDIA TYPE"
+      when 429
+        e.message = "[Sendgrid] The number of requests you have made exceeds SendGrid’s rate limitations"
       end
+      e
     end
   end
 end

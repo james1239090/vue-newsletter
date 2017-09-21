@@ -40,7 +40,10 @@ document.addEventListener('turbolinks:load', () => {
 			this.$http.get('/newsletters.json').then(
 				response => {
 					that.newsletters = response.body.map(function(v) {
-						v.message = ''
+						v.responses = {
+							status: '',
+							message: ''
+						}
 						return v
 					})
 				}, response => {
@@ -115,9 +118,10 @@ document.addEventListener('turbolinks:load', () => {
 					newsletter: newsletter
 				}).then(response => {
 					that.checkEmailResponse(response, "Mailgun", newsletter)
+					newsletter.responses.message = response.bodyText
 				}, response => {
-					that.errors = JSON.parse(response.bodyText)
-					console.log(that.errors)
+					newsletter.responses.status = response.status
+					newsletter.responses.message = response.bodyText
 				})
 			},
 			sendWithSendgrid: function(newsletter) {
