@@ -55,13 +55,17 @@ document.addEventListener('turbolinks:load', () => {
 			saveNewsletter: function() {
 				var that = this
 				var valid = false;
-				valid = this.checkAllValid()
+				valid = this.checkAllValid(this.newsletter)
 				if (valid) {
 					this.$http.post('/newsletters', {
 						newsletter: this.newsletter
 					}).then(response => {
 						that.errors = new newsletterObject()
 						that.newsletter = new newsletterObject()
+						response.data.responses = {
+							status: '',
+							message: ''
+						}
 						that.newsletters.push(response.data)
 						that.editingKey = -1
 						that.addNewsletter = false
@@ -75,25 +79,31 @@ document.addEventListener('turbolinks:load', () => {
 				this.editingKey = -1
 				this.newsletter = new newsletterObject()
 				this.addNewsletter = false
+				this.editingCache = new newsletterObject()
 				this.errors = new newsletterObject()
 			},
 			// Edit an existing Newsletter
 			editNewsletter: function(key) {
 				this.editingKey = key
-				this.editingCache = Object.assign({}, this.newsletters[key])
+				this.editingCache = JSON.parse(JSON.stringify(this.newsletters[key]))
 			},
 			// update Edited Newsletter
 			updateNewsletter: function(key) {
 				var that = this
-				this.$http.put(`/newsletters/${this.editingCache.id}`, {
-					newsletter: this.editingCache
-				}).then(response => {
-					that.errors = new newsletterObject()
-					that.newsletters[key] = this.editingCache
-					that.editingKey = -1
-				}, response => {
-					that.errors = JSON.parse(response.bodyText)
-				})
+				var valid = false
+				valid = this.checkAllValid(this.editingCache, key)
+				if (valid) {
+					this.$http.put(`/newsletters/${this.editingCache.id}`, {
+						newsletter: this.editingCache
+					}).then(response => {
+						that.errors = new newsletterObject()
+						that.newsletters[key] = this.editingCache
+						that.editingKey = -1
+					}, response => {
+						that.errors = JSON.parse(response.bodyText)
+					})
+				}
+
 			},
 			// destroy Newletter
 			destroyNewsletter: function(newsletter) {
@@ -117,8 +127,7 @@ document.addEventListener('turbolinks:load', () => {
 				this.$http.post(`/newsletters/${newsletter.id}/sendWithMailgun`, {
 					newsletter: newsletter
 				}).then(response => {
-					that.checkEmailResponse(response, "Mailgun", newsletter)
-					newsletter.responses.message = response.bodyText
+					newsletter.responses.message = response.body.message
 				}, response => {
 					newsletter.responses.status = response.status
 					newsletter.responses.message = response.bodyText
@@ -129,18 +138,11 @@ document.addEventListener('turbolinks:load', () => {
 				this.$http.post(`/newsletters/${newsletter.id}/sendWithSendgrid`, {
 					newsletter: newsletter
 				}).then(response => {
-					that.checkEmailResponse(response, "Sendgrid", newsletter)
+					newsletter.responses.message = response.body.message
 				}, response => {
-					that.errors = JSON.parse(response.bodyText)
+					newsletter.responses.status = response.status
+					newsletter.responses.message = response.bodyText
 				})
-			},
-			checkEmailResponse: function(response, service, newsletter) {
-				var mailResponseCode = (response.body.table) ? (response.body.table.code) : 200
-				if (mailResponseCode === 200) {
-					newsletter.message = "Success Send Email with " + service
-				} else {
-					newsletter.message = response.body.table.message + " response : " + response.body.table.code
-				}
 			},
 			validEmail: function(maillist, from) {
 				var validRegExp = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/
@@ -160,8 +162,6 @@ document.addEventListener('turbolinks:load', () => {
 				return valid
 			},
 			checkblank: function(inputText, from) {
-				console.log(inputText)
-				console.log(from)
 
 				if ((inputText === '') || (inputText === null) || (inputText.length === 0)) {
 					this.errors[from] = (typeof(inputText) === "object") ? "can not be blank, press enter key to finish" : "can not be blank"
@@ -171,14 +171,14 @@ document.addEventListener('turbolinks:load', () => {
 					return true
 				}
 			},
-			checkAllValid: function() {
+			checkAllValid: function(newsletter) {
 				var valid = false
-				this.checkblank(this.newsletter.mail_to_list, 'mail_to_list')
-				this.checkblank(this.newsletter.subject, 'subject')
-				this.checkblank(this.newsletter.content, 'content')
-				valid = (this.checkblank(this.newsletter.mail_to_list, 'mail_to_list') &&
-					this.checkblank(this.newsletter.subject, 'subject') &&
-					this.checkblank(this.newsletter.content, 'content'))
+				this.checkblank(newsletter.mail_to_list, 'mail_to_list')
+				this.checkblank(newsletter.subject, 'subject')
+				this.checkblank(newsletter.content, 'content')
+				valid = (this.checkblank(newsletter.mail_to_list, 'mail_to_list') &&
+					this.checkblank(newsletter.subject, 'subject') &&
+					this.checkblank(newsletter.content, 'content'))
 
 				return valid
 			}

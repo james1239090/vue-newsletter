@@ -14,12 +14,13 @@ class SendEmailService
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:subject] = @newsletter.subject
     data["o:testmode"] = true
-    puts "------data------"
-    puts data
-    errors = {}
+    result = {}
     begin
       res = RestClient.post "https://api:#{ENV['Mailgun_API_KEY']}"\
         "@api.mailgun.net/v3/#{ENV['Mailgun_Domain']}/messages", data
+      result[:code] = res.code
+      result[:message]= "[Mailgun] Success Send Email with Mailgun"
+      result
     rescue Exception => e
       case e.response.code
       when 500, 502, 503, 504
@@ -51,16 +52,18 @@ class SendEmailService
     data[:from] = "SiteMinder <no-reply@sendgrid.siteminder.com>"
     data[:api_user] = ENV['SENDGRID_API_USER']
     data[:api_key] = ENV['SENDGRID_API_KEY']
-    errors = {}
+    result = {}
     begin
       res = RestClient.post "https://api.sendgrid.com/api/mail.send.json", data
+      if res.code == 200
+        result[:code] = res.code
+        result[:message]  = "[Sendgrid] Your message is valid, but it is not queued to be delivered."
 
-      if res.response.code == 200
-        res.message = "[Sendgrid] Your message is valid, but it is not queued to be delivered. "
-      elsif res.response.code == 202
-        res.message = "[Sendgrid] Your message is both valid, and queued to be delivered."
+      elsif res.code == 202
+        result[:code] = res.code
+        result[:message]  ="[Sendgrid] Your message is both valid, and queued to be delivered."
       end
-
+      result
     rescue Exception => e
       case e.response.code
       when 500,503

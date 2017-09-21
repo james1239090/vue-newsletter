@@ -9,19 +9,19 @@
     <div class="panel panel-info">
       <div class="panel-heading">
         <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">TO</span>
+          <span class="input-group-addon">TO</span>
           <input-tag placeholder="Enter Email" :tags="newsletter.mail_to_list" validate="email"></input-tag>
         </div>
         <span style="color:red" v-show="editingKey === -1 && errors.mail_to_list.length > 0">{{ errors.mail_to_list }}</span>
         <br>
         <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">CC</span>
+          <span class="input-group-addon" >CC</span>
           <input-tag placeholder="Enter Email" :tags="newsletter.mail_cc_list" validate="email"></input-tag>
         </div>
         <span style="color:red" v-show="editingKey === -1 && errors.mail_cc_list.length > 0">{{ errors.mail_cc_list }}</span>
         <br>
         <div class="input-group">
-          <span class="input-group-addon" id="basic-addon1">BCC</span>
+          <span class="input-group-addon">BCC</span>
           <input-tag placeholder="Enter Email" :tags="newsletter.mail_bcc_list" validate="email"></input-tag>
         </div>
         <span style="color:red" v-show="editingKey === -1 && errors.mail_bcc_list.length > 0">{{ errors.mail_bcc_list }}</span>           </div>
@@ -46,15 +46,26 @@
     <hr>
     <div class="panel panel-default">
       <div class="panel-heading">
-        <label>to:</label>
-        <input-tag placeholder="Enter Email" :tags="newsletter.mail_to_list" validate="email" :read-only="key !== editingKey"></input-tag>
+        <div class="input-group">
+          <span class="input-group-addon">TO</span>
+          <input-tag placeholder="Enter Email" :tags="(key === editingKey) ? editingCache.mail_to_list : newsletter.mail_to_list" validate="email" :read-only="key !== editingKey"></input-tag>
+        </div>
+        <span style="color:red" v-show="editingKey === key && errors.mail_to_list.length > 0">{{ errors.mail_to_list }}</span>
         <template v-if="newsletter.mail_cc_list.length > 0 || key === editingKey">
-          <label>cc:</label>
-          <input-tag placeholder="Enter Email" :tags="newsletter.mail_cc_list" validate="email" :read-only="key !== editingKey"></input-tag>
+          <br>
+          <div class="input-group">
+            <span class="input-group-addon">CC</span>
+            <input-tag placeholder="Enter Email" :tags="(key === editingKey) ? editingCache.mail_cc_list : newsletter.mail_cc_list" validate="email" :read-only="key !== editingKey"></input-tag>
+            <span style="color:red" v-show="editingKey === key && errors.mail_cc_list.length > 0">{{ errors.mail_cc_list }}</span>
+          </div>
         </template>
         <template v-if="newsletter.mail_bcc_list.length > 0 || key === editingKey">
-          <label>bcc:</label>
-          <input-tag placeholder="Enter Email" :tags="newsletter.mail_bcc_list" validate="email" :read-only="key !== editingKey"></input-tag>
+          <br>
+          <div class="input-group">
+            <span class="input-group-addon">BCC</span>
+            <input-tag placeholder="Enter Email" :tags="(key === editingKey) ? editingCache.mail_bcc_list : newsletter.mail_bcc_list" validate="email" :read-only="key !== editingKey"></input-tag>
+            <span style="color:red" v-show="editingKey === key && errors.mail_bcc_list.length > 0">{{ errors.mail_bcc_list }}</span>
+          </div>
         </template>
       </div>
       <div class="panel-body">

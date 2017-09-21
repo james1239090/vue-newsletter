@@ -50,8 +50,8 @@ class NewslettersController < ApplicationController
     @newsletter = Newsletter.find(params[:id])
     res= SendEmailService.new(@newsletter).send_with_mailgun
     respond_to do |format|
-      if res.response.code == 200
-        format.json { render json: @newsletter }
+      if !defined?(res.response)
+        format.json { render json: res }
       else
         format.json { render json: res , :status => res.response.code}
       end
@@ -63,8 +63,8 @@ class NewslettersController < ApplicationController
     res = SendEmailService.new(@newsletter).send_with_sendgrid
 
     respond_to do |format|
-      if res.response.code == 200 || res.response.code == 202
-        format.json { render json: @newsletter }
+      if !defined?(res.response)
+        format.json { render json: res }
       else
         format.json { render json: res , :status => res.response.code}
       end
