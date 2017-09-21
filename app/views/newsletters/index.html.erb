@@ -38,7 +38,7 @@
       </div>
       <div class="panel-footer">
         <button v-on:click="saveNewsletter" class="btn btn-default">Save</button>
-        <button v-on:click="cancelNewsletter" class="btn btn-default">Cancel</button>
+        <button v-on:click="cancelNewsletter(-1)" class="btn btn-default">Cancel</button>
       </div>
     </div>
   </div>
@@ -86,13 +86,14 @@
         <template v-if="key !== editingKey">
           <button v-on:click="editNewsletter(key)" v-show="key !== editingKey" class="btn btn-success">Edit</button>
           <button v-on:click="destroyNewsletter(newsletter)" v-show="key !== editingKey" class="btn btn-danger">Destroy</button>
-          <button v-on:click="sendWithMailgun(newsletter)" class="btn btn-info">Send with Mailgun</button>
-          <button v-on:click="sendWithSendgrid(newsletter)"  class="btn btn-info">Send with Sendgrid</button>
+          
+          <button v-on:click="sendEmail(newsletter)" class="btn btn-info">Send Email</button>
+
           <span style="color:red">{{ newsletter.responses.message }}</span>
         </template>
         <template v-else>
           <button v-on:click="updateNewsletter(key)" class="btn btn-success">Update</button>
-          <button v-on:click="cancelNewsletter" class="btn btn-default">Cancel</button>
+          <button v-on:click="cancelNewsletter(key)" class="btn btn-default">Cancel</button>
         </template>
       </div>
     </div>

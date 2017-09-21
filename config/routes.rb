@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     member do
        post :sendWithMailgun
        post :sendWithSendgrid
+       post :sendEmail
     end
   end
 

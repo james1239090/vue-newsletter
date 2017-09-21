@@ -75,12 +75,18 @@ document.addEventListener('turbolinks:load', () => {
 				}
 
 			},
-			cancelNewsletter: function() {
+			cancelNewsletter: function(key) {
 				this.editingKey = -1
 				this.newsletter = new newsletterObject()
 				this.addNewsletter = false
 				this.editingCache = new newsletterObject()
 				this.errors = new newsletterObject()
+				if (key !== -1){
+					this.newsletters[key].responses = {
+							status: '',
+							message: ''
+					}
+				}
 			},
 			// Edit an existing Newsletter
 			editNewsletter: function(key) {
@@ -99,8 +105,12 @@ document.addEventListener('turbolinks:load', () => {
 						that.errors = new newsletterObject()
 						that.newsletters[key] = this.editingCache
 						that.editingKey = -1
+						that.newsletters[key].responses = {
+							status: '',
+							message: ''
+						}
 					}, response => {
-						that.errors = JSON.parse(response.bodyText)
+						that.newsletters[key].responses.message = JSON.parse(response.bodyText)
 					})
 				}
 
@@ -116,7 +126,7 @@ document.addEventListener('turbolinks:load', () => {
 						that.errors = new newsletterObject()
 						this.newsletters.splice(this.newsletters.indexOf(newsletter), 1);
 					}, response => {
-						that.errors = JSON.parse(response.bodyText)
+						that.newsletters[key].responses.message = JSON.parse(response.bodyText)
 					})
 				}
 
@@ -136,6 +146,17 @@ document.addEventListener('turbolinks:load', () => {
 			sendWithSendgrid: function(newsletter) {
 				var that = this
 				this.$http.post(`/newsletters/${newsletter.id}/sendWithSendgrid`, {
+					newsletter: newsletter
+				}).then(response => {
+					newsletter.responses.message = response.body.message
+				}, response => {
+					newsletter.responses.status = response.status
+					newsletter.responses.message = response.bodyText
+				})
+			},
+			sendEmail: function(newsletter) {
+				var that = this
+				this.$http.post(`/newsletters/${newsletter.id}/sendEmail`, {
 					newsletter: newsletter
 				}).then(response => {
 					newsletter.responses.message = response.body.message

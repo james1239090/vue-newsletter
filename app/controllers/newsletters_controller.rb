@@ -71,6 +71,19 @@ class NewslettersController < ApplicationController
     end
   end
 
+  def sendEmail
+    @newsletter = Newsletter.find(params[:id])
+    res = SendEmailService.new(@newsletter).send_with_sendgrid
+
+    respond_to do |format|
+      if !defined?(res.response)
+        format.json { render json: res }
+      else
+        format.json { render json: res , :status => res.response.code}
+      end
+    end
+  end
+
   private
   def newsletter_params
     params.require(:newsletter).permit(:subject, :content, :mail_to_list => [], :mail_cc_list => [], :mail_bcc_list => [])
