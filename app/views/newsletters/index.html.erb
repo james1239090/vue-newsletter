@@ -27,7 +27,7 @@
         <span style="color:red" v-show="editingKey === -1 && errors.mail_bcc_list.length > 0">{{ errors.mail_bcc_list }}</span>           </div>
       <div class="panel-body">
         <div class="form-group">
-          <label class="form__label">Newslatter Subject</label>
+          <label class="form__label">Transaction Subject</label>
           <input class="form__input" v-model="newsletter.subject" @input="checkblank(newsletter.subject,'subject')">
           <span style="color:red" v-show="editingKey === -1">{{ errors.subject }}</span>
         </div>
