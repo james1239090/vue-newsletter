@@ -81,10 +81,10 @@ document.addEventListener('turbolinks:load', () => {
 				this.addNewsletter = false
 				this.editingCache = new newsletterObject()
 				this.errors = new newsletterObject()
-				if (key !== -1){
+				if (key !== -1) {
 					this.newsletters[key].responses = {
-							status: '',
-							message: ''
+						status: '',
+						message: ''
 					}
 				}
 			},
@@ -160,6 +160,9 @@ document.addEventListener('turbolinks:load', () => {
 					newsletter: newsletter
 				}).then(response => {
 					newsletter.responses.message = response.body.message
+					setTimeout(function() {
+						newsletter.responses.message = ""
+					}, 5000)
 				}, response => {
 					newsletter.responses.status = response.status
 					newsletter.responses.message = response.bodyText
