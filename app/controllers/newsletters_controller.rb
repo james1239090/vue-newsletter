@@ -73,7 +73,7 @@ class NewslettersController < ApplicationController
 
   def sendEmail
     @newsletter = Newsletter.find(params[:id])
-    res = SendEmailService.new(@newsletter).send_with_sendgrid
+    res = SendEmailService.new(@newsletter).send_with_mailgun
 
     respond_to do |format|
       if !defined?(res.response)

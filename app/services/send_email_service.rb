@@ -10,7 +10,7 @@ class SendEmailService
 
     data[:to] = @newsletter.mail_to_list
     data[:cc] = @newsletter.mail_cc_list if @newsletter.mail_cc_list.length > 0
-    data[:bcc] ||= @newsletter.mail_bcc_list if @newsletter.mail_bcc_list.length > 0
+    data[:bcc] = @newsletter.mail_bcc_list if @newsletter.mail_bcc_list.length > 0
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:subject] = @newsletter.subject
     # data["o:testmode"] = true
@@ -46,7 +46,7 @@ class SendEmailService
     data = {}
     data[:to] = @newsletter.mail_to_list
     data[:cc] = @newsletter.mail_cc_list if @newsletter.mail_cc_list.length > 0
-    data[:bcc] ||= @newsletter.mail_bcc_list if @newsletter.mail_bcc_list.length > 0
+    data[:bcc] = @newsletter.mail_bcc_list if @newsletter.mail_bcc_list.length > 0
     data[:subject] = @newsletter.subject
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:from] = "SiteMinder <no-reply@sendgrid.siteminder.com>"
