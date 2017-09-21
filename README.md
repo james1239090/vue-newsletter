@@ -21,10 +21,6 @@
     * SENDGRID_API_KEY :  `Your SendGrid password`
     * Mailgun_API_KEY : `Your Mailgun API KEY`
     * Mailgun_Domain : `Your Mailgun Domain`
-    * mail_to_user : use `String` and comma to separate different user
-      * ex.`"test@gmail.com,test2@gmail.com,test3@gmail.com"`
-    * mail_cc_user : format same as mail_to_user
-    * mail_bcc_user: format same as mail_to_user
 
 * Deployment instructions
 
@@ -55,6 +51,7 @@ $ heroku buildpacks:add heroku/ruby
 ```
 $ heroku run rails:db:migrate
 ```
+* rename `config/application.example.yml` to `config/application.yml`
 
 * Filled with your API key and Mail List on `config/application.yml`
 
