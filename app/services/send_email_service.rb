@@ -13,7 +13,7 @@ class SendEmailService
     data[:bcc] ||= @newsletter.mail_bcc_list if @newsletter.mail_bcc_list.length > 0
     data[:text] = @newsletter.content.gsub('\n', '\r\n')
     data[:subject] = @newsletter.subject
-    data["o:testmode"] = true
+    # data["o:testmode"] = true
     result = {}
     begin
       res = RestClient.post "https://api:#{ENV['Mailgun_API_KEY']}"\
